@@ -1,16 +1,13 @@
-# This is a sample Python script.
+from dotenv import load_dotenv
+from gigachat import GigaChat as GiChat
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+question = "Какой плащ был у Понтия Пилата?"
 
+load_dotenv()
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+llmG = GiChat()
 
+resG = llmG.chat(question)
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+print(resG.choices[0].message.content)
+print(resL.content)
