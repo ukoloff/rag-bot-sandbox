@@ -20,11 +20,19 @@ system_prompt = """Представь, что ты ассистент подде
     а если есть, то вставь кусок из контекста. При ответе на вопрос также ни в коем случае не упоминай, 
     что существует какой-то контекст."""
 
-print(db.similarity_search(query="Какие фестивали пройдут 5 июля в Екатеринбурге?", k=3)) # возврат массива с похлжими эмбеддингами
+question = input("Введите ваш вопрос: ")
+
+# 5 контекстов
+first_context = db.similarity_search(query=question, k=5)[0].page_content
+second_context = db.similarity_search(query=question, k=5)[1].page_content
+third_context = db.similarity_search(query=question, k=5)[2].page_content
+fourth_context = db.similarity_search(query=question, k=5)[3].page_content
+fifth_context = db.similarity_search(query=question, k=5)[4].page_content
+
+all_context = first_context + second_context + second_context + third_context + fourth_context + fifth_context
 
 llm = GigaChat()
-# 5 контекстов
 
-all_prompt = f"{system_prompt} Какие фестивали пройдут 5 июля в Екатеринбурге?"
+all_prompt = f"{system_prompt} \n Контекст: {all_context} \n Вопрос: {question} " + "\nТвой ответ: "
 
 print(llm.invoke(all_prompt))
