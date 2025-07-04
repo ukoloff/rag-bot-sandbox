@@ -1,8 +1,7 @@
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_chroma import Chroma
-from langchain_core.runnables import RunnablePassthrough
-from langchain_core.prompts import ChatPromptTemplate
-#import chromadb # На будущее
+#from langchain_huggingface import HuggingFaceEmbeddings
+#from langchain_chroma import Chroma
+from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
+import chromadb # На будущее
 from langchain_gigachat import GigaChat
 from dotenv import load_dotenv
 from os.path import normpath, join, dirname
@@ -12,8 +11,11 @@ load_dotenv()
 path_to_db = normpath(join(dirname(__file__), '..', 'db'))
 
 ## Подгрузка БД Chroma
-embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-db = Chroma(persist_directory=path_to_db, collection_name="abc", embedding_function=embeddings)
+# embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+db = chromadb.PersistentClient(path=path_to_db)
+collection = db.get_or_create_collection(name="abc")
+
+# db = Chroma(persist_directory=path_to_db, collection_name="abc", embedding_function=DefaultEmbeddingFunction)
 system_prompt = """Представь, что ты ассистент поддержки, отвечающий на важные
     мне вопросы исключительно на русском языке, на основании определенного контекста.
     Если информации нет в контексте, то напиши кратко: "Не могу помочь с этим вопросом" и ничего больше,
@@ -23,16 +25,11 @@ system_prompt = """Представь, что ты ассистент подде
 question = input("Введите ваш вопрос: ")
 
 # 5 контекстов
-first_context = db.similarity_search(query=question, k=5)[0].page_content
-second_context = db.similarity_search(query=question, k=5)[1].page_content
-third_context = db.similarity_search(query=question, k=5)[2].page_content
-fourth_context = db.similarity_search(query=question, k=5)[3].page_content
-fifth_context = db.similarity_search(query=question, k=5)[4].page_content
+docs = collection.query(query_texts=[question], n_results=5)
+all_context = '\n\n'.join(docs['documents'][0])
+print(all_context)
+#llm = GigaChat()
 
-all_context = first_context + second_context + second_context + third_context + fourth_context + fifth_context
+#all_prompt = f"{system_prompt} \n Контекст: {all_context} \n Вопрос: {question} " + "\nТвой ответ: "
 
-llm = GigaChat()
-
-all_prompt = f"{system_prompt} \n Контекст: {all_context} \n Вопрос: {question} " + "\nТвой ответ: "
-
-print(llm.invoke(all_prompt))
+#print(llm.invoke(all_prompt).content)

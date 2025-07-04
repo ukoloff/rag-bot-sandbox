@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "chromadb>=1.0.15",
     "dotenv>=0.9.9",
     "gigachat>=0.1.40",
     "langchain-chroma>=0.2.4",
