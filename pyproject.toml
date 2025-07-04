@@ -10,5 +10,6 @@ dependencies = [
     "langchain-chroma>=0.2.4",
     "langchain-community>=0.3.27",
     "langchain-gigachat>=0.3.11",
+    "langchain-huggingface>=0.3.0",
     "sentence-transformers>=5.0.0",
 ]
