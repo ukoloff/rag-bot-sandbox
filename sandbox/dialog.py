@@ -17,22 +17,23 @@ system_prompt = """Представь, что ты ассистент подде
     а если есть, то вставь кусок из контекста. При ответе на вопрос также ни в коем случае не упоминай, 
     что существует какой-то контекст.
     """
-
-question = input("Введите ваш вопрос: ")
-docs = collection.query(query_texts=[question], n_results=5)
-all_context = '\n\n'.join(docs['documents'][0])
-
 messages = [
     Messages(
         role=MessagesRole.SYSTEM,
         content = system_prompt
-    ),
-    Messages(
+    )]
+
+while True:
+    question = input("Введите ваш вопрос: ")
+    if question == "":
+        break
+    docs = collection.query(query_texts=[question], n_results=5)
+    all_context = '\n\n'.join(docs['documents'][0])
+
+    messages.append(Messages(
         role=MessagesRole.USER,
-        content = f"Контекст: {all_context} \n Вопрос: {question} " + "\nТвой ответ: "
-    )
-]
+        content = f"Контекст: {all_context} \n Вопрос: {question} " + "\nТвой ответ: "))
 
-call_gigachat = llm.chat(Chat(messages=messages))
-
-print(call_gigachat.choices[0].message.content)
+    call_gigachat = llm.chat(Chat(messages=messages))
+    print(call_gigachat.choices[0].message.content)
+    messages.append(call_gigachat.choices[0].message)
