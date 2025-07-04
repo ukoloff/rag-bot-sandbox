@@ -14,10 +14,17 @@ path_to_db = normpath(join(dirname(__file__), '..', 'db'))
 ## Подгрузка БД Chroma
 embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 db = Chroma(persist_directory=path_to_db, collection_name="abc", embedding_function=embeddings)
+system_prompt = """Представь, что ты ассистент поддержки, отвечающий на важные
+    мне вопросы исключительно на русском языке, на основании определенного контекста.
+    Если информации нет в контексте, то напиши кратко: "Не могу помочь с этим вопросом" и ничего больше,
+    а если есть, то вставь кусок из контекста. При ответе на вопрос также ни в коем случае не упоминай, 
+    что существует какой-то контекст."""
 
 print(db.similarity_search(query="Какие фестивали пройдут 5 июля в Екатеринбурге?", k=3)) # возврат массива с похлжими эмбеддингами
 
 llm = GigaChat()
-question = "Какие фестивали пройдут 5 июля в Екатеринбурге??"
+# 5 контекстов
 
-print(llm.invoke(question))
+all_prompt = f"{system_prompt} Какие фестивали пройдут 5 июля в Екатеринбурге?"
+
+print(llm.invoke(all_prompt))
