@@ -20,5 +20,4 @@ print(db.similarity_search(query="Какие фестивали пройдут 5
 llm = GigaChat()
 question = "Какие фестивали пройдут 5 июля в Екатеринбурге??"
 
-retriever = db.as_retriever()
-print(len(retriever.invoke(question)))
+print(llm.invoke(question))
