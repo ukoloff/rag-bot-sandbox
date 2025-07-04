@@ -1,11 +1,24 @@
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.prompts import ChatPromptTemplate
 #import chromadb # На будущее
+from langchain_gigachat import GigaChat
+from dotenv import load_dotenv
+from os.path import normpath, join, dirname
+
+load_dotenv()
+
+path_to_db = normpath(join(dirname(__file__), '..', 'db'))
 
 ## Подгрузка БД Chroma
-def load_create_vector_db(embedding_model_name="all-MiniLM-L6-v2", persist_dir="db", collection_name="abc"):
-    embeddings = HuggingFaceEmbeddings(model_name=embedding_model_name)
-    db = Chroma(persist_directory=persist_dir, collection_name=collection_name, embedding_function=embeddings)
-    return db
-##
-print(load_create_vector_db().similarity_search(query="Как раньше называлась Площадь 1905 года?", k=3, filter={"source": "document.txt"})) # возврат массива с похлжими эмбеддингами
+embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+db = Chroma(persist_directory=path_to_db, collection_name="abc", embedding_function=embeddings)
+
+print(db.similarity_search(query="Какие фестивали пройдут 5 июля в Екатеринбурге?", k=3)) # возврат массива с похлжими эмбеддингами
+
+llm = GigaChat()
+question = "Какие фестивали пройдут 5 июля в Екатеринбурге??"
+
+retriever = db.as_retriever()
+print(len(retriever.invoke(question)))
