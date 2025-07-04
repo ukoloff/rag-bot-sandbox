@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from os.path import normpath, join, dirname
 
 load_dotenv()
-llm = GigaChat()
+llm = GigaChat(model="GigaChat-Max")
 path_to_db = normpath(join(dirname(__file__), '..', 'db'))
 
 ## Подгрузка БД Chroma
@@ -31,5 +31,6 @@ docs = collection.query(query_texts=[question], n_results=5)
 all_context = '\n\n'.join(docs['documents'][0])
 
 all_prompt = f"{system_prompt} \n Контекст: {all_context} \n Вопрос: {question} " + "\nТвой ответ: "
+call_gigachat = llm.invoke(all_prompt)
 
-print(llm.invoke(all_prompt).content)
+print(call_gigachat.content)
