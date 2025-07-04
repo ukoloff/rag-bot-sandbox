@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from os.path import normpath, join, dirname
 
 load_dotenv()
-llm = GigaChat(model="GigaChat-Max")
+llm = GigaChat(model="GigaChat-Pro")
 path_to_db = normpath(join(dirname(__file__), '..', 'db'))
 
 ## Подгрузка БД Chroma
