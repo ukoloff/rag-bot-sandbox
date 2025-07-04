@@ -2,7 +2,8 @@
 #from langchain_chroma import Chroma
 from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
 import chromadb # На будущее
-from langchain_gigachat import GigaChat
+#from langchain_gigachat import GigaChat
+from  gigachat import GigaChat
 from dotenv import load_dotenv
 from os.path import normpath, join, dirname
 
@@ -31,6 +32,6 @@ docs = collection.query(query_texts=[question], n_results=5)
 all_context = '\n\n'.join(docs['documents'][0])
 
 all_prompt = f"{system_prompt} \n Контекст: {all_context} \n Вопрос: {question} " + "\nТвой ответ: "
-call_gigachat = llm.invoke(all_prompt)
+call_gigachat = llm.chat(all_prompt)
 
-print(call_gigachat.content)
+print(call_gigachat.choices[0].message.content)
