@@ -31,8 +31,7 @@ n_result = 5
 for collection in collections:
     docs = collection.query(query_texts=[question], n_results=n_result)
     for n in range(1, n_result+1):
-        f.write(f"""<u>Ответ {n}</u>: {docs['documents'][0][n-1].replace("\n", '<br>')}
-            <br>
+        f.write(f"""<u>Ответ {n}</u>: <pre>{docs['documents'][0][n-1]} </pre>
             """)
     f.write("<hr>")
 
