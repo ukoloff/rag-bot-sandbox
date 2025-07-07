@@ -5,12 +5,11 @@ import chromadb
 
 path_to_db = normpath(join(dirname(__file__), '..', 'db'))
 db = chromadb.PersistentClient(path=path_to_db)
+names = ["BAAI/bge-small-en-v1.5", "snowflake/snowflake-arctic-embed-xs", "snowflake/snowflake-arctic-embed-s", "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"]
 collections = []
 collections.append(db.get_or_create_collection(name="abc"))
-collections.append(db.get_or_create_collection(name="abc", embedding_function=SentenceTransformerEmbeddingFunction(model_name="BAAI/bge-small-en-v1.5")))
-collections.append(db.get_or_create_collection(name="abc", embedding_function=SentenceTransformerEmbeddingFunction(model_name="snowflake/snowflake-arctic-embed-xs")))
-collections.append(db.get_or_create_collection(name="abc", embedding_function=SentenceTransformerEmbeddingFunction(model_name="snowflake/snowflake-arctic-embed-s")))
-collections.append(db.get_or_create_collection(name="abc", embedding_function=SentenceTransformerEmbeddingFunction(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")))
+for name in names:
+    collections.append(db.get_or_create_collection(name="abc", embedding_function=SentenceTransformerEmbeddingFunction(model_name=name)))
 
 question = input("Введите ваш вопрос: ")
 
