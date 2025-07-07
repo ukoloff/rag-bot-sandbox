@@ -23,15 +23,15 @@ path_to_html = normpath(join(dirname(__file__), 'output', 'a.html'))
 f = open(path_to_html, 'w', encoding='utf-8')
 f.write(f"""
     <meta charset="utf-8">
-    <h1><b>Вопрос: {question}</b></h1>
+    <h1><b>Вопрос</b>: {question}</h1>
     <hr>
     <h2>
     """)
 n_result = 5
 for collection in collections:
+    docs = collection.query(query_texts=[question], n_results=n_result)
     for n in range(1, n_result+1):
-        docs = collection.query(query_texts=[question], n_results=n_result)
-        f.write(f"""<u>Ответ {n}</u>: {docs['documents'][0][n-1]}
+        f.write(f"""<u>Ответ {n}</u>: {docs['documents'][0][n-1].replace("\n", '<br>')}
             <br>
             """)
     f.write("<hr>")
