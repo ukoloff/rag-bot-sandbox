@@ -1,5 +1,4 @@
 from gigachat import GigaChat
-from langchain_gigachat import GigaChatEmbeddings
 from dotenv import load_dotenv
 from os.path import normpath, join, dirname
 import chromadb
