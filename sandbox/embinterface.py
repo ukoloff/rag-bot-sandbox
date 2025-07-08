@@ -13,10 +13,8 @@ class GigaChatEmb(EmbeddingFunction):
         self.giga = GigaChatEmbeddings(model=model_name)
 
     def __call__(self, input: Documents) -> Embeddings:
-        result = []
-        for vec in self.giga.embed_documents(input):
-            result.append(np.array(vec))
-        return result
+        return [np.array(vec)
+                for vec in self.giga.embed_documents(input)]
 
 def get_collection():
     client = chromadb.PersistentClient(path=normpath(join(dirname(__file__), '..', 'db')))
@@ -29,3 +27,9 @@ def get_collection():
     result.append(client.get_or_create_collection(name="SbertLarge",
                                                   embedding_function=SentenceTransformerEmbeddingFunction(model_name='ai-forever/sbert_large_nlu_ru')))
     return result
+
+if __name__ == '__main__':
+    from dotenv import load_dotenv
+    load_dotenv()
+    x = GigaChatEmb()
+    print(x(['Hello']))
