@@ -3,16 +3,8 @@ from langchain_gigachat import GigaChatEmbeddings
 from chromadb import Documents, EmbeddingFunction, Embeddings
 from dotenv import load_dotenv
 import numpy as np
-
-load_dotenv()
-
-# giga = GigaChatEmbeddings(model='Embeddings')
-# sbert = SentenceTransformerEmbeddingFunction(model_name='ai-forever/sbert_large_nlu_ru')
-
-# print("end")
-
-# print('GigaChat', giga.embed_query('Hi!'))
-# print('X', sbert(['Hi!']))
+import chromadb
+from os.path import join, dirname, normpath
 
 class GigaChatEmb(EmbeddingFunction):
 
@@ -26,8 +18,14 @@ class GigaChatEmb(EmbeddingFunction):
             result.append(np.array(vec))
         return result
 
-test = GigaChatEmb()
-print('Test', test(['Hi!']))
-
-testR = GigaChatEmb('EmbeddingsGigaR')
-print('TestR', testR(['Hi!']))
+def get_collection():
+    client = chromadb.PersistentClient(path=normpath(join(dirname(__file__), '..', 'db')))
+    result = []
+    result.append(client.get_or_create_collection(name="default"))
+    result.append(client.get_or_create_collection(name="Embeddings",
+                                                  embedding_function=GigaChatEmb()))
+    result.append(client.get_or_create_collection(name="EmbeddingsGigaR",
+                                                  embedding_function=GigaChatEmb('EmbeddingsGigaR')))
+    result.append(client.get_or_create_collection(name="SbertLarge",
+                                                  embedding_function=SentenceTransformerEmbeddingFunction(model_name='ai-forever/sbert_large_nlu_ru')))
+    return result
