@@ -27,22 +27,30 @@ f.write(f"""
 <hr>
 """)
 n_result = 5
+query_texts = []
+
 for collection in collections:
-    docs = collection.query(query_texts=[question], n_results=n_result)
-    f.write("<table>")
-    for n in range(1, n_result+1):
-        f.write(f"""
-    <tr>
-        <td>
-            <h2>
-                <b><pre><u>Ответ {n}:</u>   </pre></b>
-            </h2>
-        </td>
-        <td><h2>
-            <b><pre>{docs['documents'][0][n-1]}</pre></b>
-        </h2></td>
-    </tr>
+    query_texts.append(collection.query(query_texts=[question], n_results=n_result)['documents'][0])
+for i in range(len(names)+1):
+    if i == 0:
+        f.write(f"""<table border>
+    <th colspan="2">{"default"}</th>
 """)
+    else:
+        f.write(f"""<table border>
+    <th colspan="2">{names[i-1]}</th>
+""")
+    for n in range(5):
+        f.write(f"""
+                <tr>
+                    <th nowrap>
+                            <u>Ответ {n+1}:</u>
+                    </th>
+                    <td style="font-size: 14">
+                        {query_texts[i][n].replace('\n', '<br>\n')}
+                    </td>
+                </tr>
+            """)
     f.write("""
-</table>
-<hr>""")
+        </table>
+        <hr>""")
