@@ -17,8 +17,9 @@ texts = text_splitter.split_documents(document)
 new_texts = [doc.page_content for doc in texts]
 
 for coll in get_collection():
-    if len(coll.get(limit=1)) > 0:
+    if len(coll.get(limit=1)['ids']) > 0:
         continue
+    print("Заполняю коллекцию")
     coll.add(
         ids=[f"{i}" for i in range(len(new_texts))],
         documents=new_texts
