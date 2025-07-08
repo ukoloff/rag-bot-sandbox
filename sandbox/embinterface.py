@@ -28,6 +28,8 @@ def get_collection():
                                                   embedding_function=SentenceTransformerEmbeddingFunction(model_name='ai-forever/sbert_large_nlu_ru')))
     return result
 
+# более структурированный вывод
+
 if __name__ == '__main__':
     from dotenv import load_dotenv
     load_dotenv()
