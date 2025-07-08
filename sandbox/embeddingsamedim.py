@@ -22,7 +22,20 @@ for collection in collections:
 path_to_html = normpath(join(dirname(__file__), 'output', 'a.html'))
 f = open(path_to_html, 'w', encoding='utf-8')
 f.write(f"""
+<html>
+<head>
 <meta charset="utf-8">
+<style>
+th {{
+    font-size: 20;
+    white-space: nowrap;
+}}
+td {{
+    font-size: 20;
+}}
+</style>
+</head>
+<body>
 <h1><b>Вопрос</b>: {question}</h1>
 <hr>
 """)
@@ -34,23 +47,25 @@ for collection in collections:
 for i in range(len(names)+1):
     if i == 0:
         f.write(f"""<table border>
-    <th colspan="2" style="font-size: 20">{"default"}</th>
+    <th colspan="2">default</th>
 """)
     else:
         f.write(f"""<table border>
-    <th colspan="2" style="font-size: 20">{names[i-1]}</th>
+    <th colspan="2">{names[i-1]}</th>
 """)
     for n in range(5):
         f.write(f"""
                 <tr>
-                    <th nowrap style="font-size: 20">
+                    <th>
                             <u>Ответ {n+1}:</u>
                     </th>
-                    <td style="font-size: 20">
+                    <td>
                         {query_texts[i][n].replace('\n', '<br>\n')}
                     </td>
                 </tr>
             """)
     f.write("""
         </table>
-        <hr>""")
+        </body>
+        </html>
+        """)
