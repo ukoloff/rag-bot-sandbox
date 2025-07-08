@@ -34,19 +34,19 @@ for collection in collections:
 for i in range(len(names)+1):
     if i == 0:
         f.write(f"""<table border>
-    <th colspan="2">{"default"}</th>
+    <th colspan="2" style="font-size: 20">{"default"}</th>
 """)
     else:
         f.write(f"""<table border>
-    <th colspan="2">{names[i-1]}</th>
+    <th colspan="2" style="font-size: 20">{names[i-1]}</th>
 """)
     for n in range(5):
         f.write(f"""
                 <tr>
-                    <th nowrap>
+                    <th nowrap style="font-size: 20">
                             <u>Ответ {n+1}:</u>
                     </th>
-                    <td style="font-size: 14">
+                    <td style="font-size: 20">
                         {query_texts[i][n].replace('\n', '<br>\n')}
                     </td>
                 </tr>
