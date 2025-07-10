@@ -19,37 +19,30 @@ class GigaChatEmb(EmbeddingFunction):
 def get_collection():
     client = chromadb.PersistentClient(path=normpath(join(dirname(__file__), '..', 'db')))
     result = []
-    name = "default"
-    result.append({
-        "name": name,
-        "coll": client.get_or_create_collection(name=name),
-    })
-    name = "Embeddings"
-    result.append({
-        "name": name,
-        "coll": client.get_or_create_collection(name=name,
-                                                  embedding_function=GigaChatEmb())
-    })
-    name = "EmbeddingsGigaR"
-    result.append({
-        "name": name,
-        "coll": client.get_or_create_collection(name=name,
-                                                  embedding_function=GigaChatEmb('EmbeddingsGigaR'))
-    })
-    name = "SbertLarge"
-    result.append({
-        "name": name,
-        "coll": client.get_or_create_collection(name=name,
-                                                  embedding_function=SentenceTransformerEmbeddingFunction(model_name='ai-forever/sbert_large_nlu_ru'))
-    })
+    emb_functions = {
+        "default": None,
+        "Embeddings": GigaChatEmb(),
+        "EmbeddingsGigaR": GigaChatEmb('EmbeddingsGigaR'),
+        "SbertLarge": SentenceTransformerEmbeddingFunction(model_name='ai-forever/sbert_large_nlu_ru'),
+    }
+    for k, v in emb_functions.items():
+        if v is None:
+            coll = client.get_or_create_collection(name=k)
+        else:
+            coll = client.get_or_create_collection(name=k, embedding_function=v)
+        result.append({
+            "name": k,
+            "coll": coll,
+            "emb": v,
+
+        })
     return result # можно попробовать завернуть в list(zip) 
 
 
 if __name__ == '__main__':
     from dotenv import load_dotenv
     load_dotenv()
-
     z = get_collection()
-    # x = GigaChatEmb()
-    # print(x(['Hello']))
+    emb = z[1]['emb']
+    print(emb(['Hello']))
     print(chromadb.PersistentClient(path=normpath(join(dirname(__file__), '..', 'db'))).list_collections())
