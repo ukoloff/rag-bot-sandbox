@@ -3,7 +3,7 @@ from chromadb.utils.embedding_functions import (
     DefaultEmbeddingFunction,
 )
 from langchain_gigachat import GigaChatEmbeddings
-from chromadb import Documents, EmbeddingFunction, Embeddings
+from chromadb import Documents, EmbeddingFunction, Embeddings, Collection
 from dotenv import load_dotenv
 import numpy as np
 import chromadb
@@ -19,10 +19,19 @@ class GigaChatEmb(EmbeddingFunction):
         return [np.array(vec) for vec in self.giga.embed_documents(input)]
 
 
-def get_collection():
-    client = chromadb.PersistentClient(
-        path=normpath(join(dirname(__file__), "..", "db"))
-    )
+class CollectionInfo:
+
+    name: str
+    coll: Collection
+    emb: EmbeddingFunction
+
+    def __init__(self, name: str, coll: Collection, emb: EmbeddingFunction):
+        self.name = name
+        self.coll = coll
+        self.emb = emb
+
+def get_collection() -> list[CollectionInfo]:
+    client = chromadb.PersistentClient(path=normpath(join(dirname(__file__), '..', 'db')))
     result = []
     emb_functions = {
         "default": None,
@@ -38,14 +47,8 @@ def get_collection():
             v = DefaultEmbeddingFunction()
         else:
             coll = client.get_or_create_collection(name=k, embedding_function=v)
-        result.append(
-            {
-                "name": k,
-                "coll": coll,
-                "emb": v,
-            }
-        )
-    return result  # можно попробовать завернуть в list(zip)
+        result.append(CollectionInfo(name=k, coll=coll, emb=v))
+    return result # можно попробовать завернуть в list(zip) 
 
 
 if __name__ == "__main__":
@@ -53,10 +56,6 @@ if __name__ == "__main__":
 
     load_dotenv()
     z = get_collection()
-    emb = z[0]["emb"]
-    print(emb(["Hello"]))
-    print(
-        chromadb.PersistentClient(
-            path=normpath(join(dirname(__file__), "..", "db"))
-        ).list_collections()
-    )
+    emb = z[0].emb
+    print(emb(['Hello']))
+    print(chromadb.PersistentClient(path=normpath(join(dirname(__file__), '..', 'db'))).list_collections())

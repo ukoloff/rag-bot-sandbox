@@ -30,9 +30,9 @@ n_result = 5
 names = ['Default (all-MiniLM-L6-v2)', 'Embeddings', 'EmbeddingsGigaR', 'SbertLarge']
 
 for i, item in enumerate(get_collection()): # доделать
-    query_texts = item['coll'].query(query_texts=[question], n_results=n_result)['documents'][0]
+    query_texts = item.coll.query(query_texts=[question], n_results=n_result)['documents'][0]
     f.write(f"""<table border>
-    <th colspan="2">{item['name']}</th>
+    <th colspan="2">{item.name}</th>
 """)
     for i, doc in enumerate(query_texts):
         f.write(f"""
