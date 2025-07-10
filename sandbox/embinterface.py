@@ -1,4 +1,4 @@
-from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
+from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction, DefaultEmbeddingFunction
 from langchain_gigachat import GigaChatEmbeddings
 from chromadb import Documents, EmbeddingFunction, Embeddings
 from dotenv import load_dotenv
@@ -19,32 +19,31 @@ class GigaChatEmb(EmbeddingFunction):
 def get_collection():
     client = chromadb.PersistentClient(path=normpath(join(dirname(__file__), '..', 'db')))
     result = []
-    result.append({
-        "name": "default",
-        "coll": client.get_or_create_collection(name="default"),
-    })
-    result.append({
-        "name": "Embeddings",
-        "coll": client.get_or_create_collection(name="Embeddings",
-                                                  embedding_function=GigaChatEmb())
-    })
-    result.append({
-        "name": "EmbeddingsGigaR",
-        "coll": client.get_or_create_collection(name="EmbeddingsGigaR",
-                                                  embedding_function=GigaChatEmb('EmbeddingsGigaR'))
-    })
-    result.append({
-        "name": "SbertLarge",
-        "coll": client.get_or_create_collection(name="SbertLarge",
-                                                  embedding_function=SentenceTransformerEmbeddingFunction(model_name='ai-forever/sbert_large_nlu_ru'))
-    })
+    emb_functions = {
+        "default": None,
+        "Embeddings": GigaChatEmb(),
+        "EmbeddingsGigaR": GigaChatEmb('EmbeddingsGigaR'),
+        "SbertLarge": SentenceTransformerEmbeddingFunction(model_name='ai-forever/sbert_large_nlu_ru'),
+    }
+    for k, v in emb_functions.items():
+        if v is None:
+            coll = client.get_or_create_collection(name=k)
+            v = DefaultEmbeddingFunction()
+        else:
+            coll = client.get_or_create_collection(name=k, embedding_function=v)
+        result.append({
+            "name": k,
+            "coll": coll,
+            "emb": v,
+
+        })
     return result # можно попробовать завернуть в list(zip) 
 
 
 if __name__ == '__main__':
     from dotenv import load_dotenv
     load_dotenv()
-
     z = get_collection()
-    # x = GigaChatEmb()
-    # print(x(['Hello']))
+    emb = z[0]['emb']
+    print(emb(['Hello']))
+    print(chromadb.PersistentClient(path=normpath(join(dirname(__file__), '..', 'db'))).list_collections())
