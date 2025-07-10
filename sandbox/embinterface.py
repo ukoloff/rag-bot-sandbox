@@ -36,4 +36,3 @@ if __name__ == '__main__':
     z = get_collection()
     # x = GigaChatEmb()
     # print(x(['Hello']))
-    print(chromadb.PersistentClient(path=normpath(join(dirname(__file__), '..', 'db'))).list_collections())
