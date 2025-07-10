@@ -1,6 +1,6 @@
 from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction, DefaultEmbeddingFunction
 from langchain_gigachat import GigaChatEmbeddings
-from chromadb import Documents, EmbeddingFunction, Embeddings
+from chromadb import Documents, EmbeddingFunction, Embeddings, Collection
 from dotenv import load_dotenv
 import numpy as np
 import chromadb
@@ -17,12 +17,17 @@ class GigaChatEmb(EmbeddingFunction):
                 for vec in self.giga.embed_documents(input)]
 
 class CollectionInfo:
-    def __init__(self, name, coll, emb):
+
+    name: str
+    coll: Collection
+    emb: EmbeddingFunction
+
+    def __init__(self, name: str, coll: Collection, emb: EmbeddingFunction):
         self.name = name
         self.coll = coll
         self.emb = emb
 
-def get_collection():
+def get_collection() -> list[CollectionInfo]:
     client = chromadb.PersistentClient(path=normpath(join(dirname(__file__), '..', 'db')))
     result = []
     emb_functions = {
