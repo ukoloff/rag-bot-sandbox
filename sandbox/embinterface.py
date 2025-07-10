@@ -18,14 +18,26 @@ class GigaChatEmb(EmbeddingFunction):
 
 def get_collection():
     client = chromadb.PersistentClient(path=normpath(join(dirname(__file__), '..', 'db')))
-    result = {}
-    result["default"] = client.get_or_create_collection(name="default")
-    result["Embeddings"] = client.get_or_create_collection(name="Embeddings",
+    result = []
+    result.append({
+        "name": "default",
+        "coll": client.get_or_create_collection(name="default"),
+    })
+    result.append({
+        "name": "Embeddings",
+        "coll": client.get_or_create_collection(name="Embeddings",
                                                   embedding_function=GigaChatEmb())
-    result["EmbeddingsGigaR"] = client.get_or_create_collection(name="EmbeddingsGigaR",
+    })
+    result.append({
+        "name": "EmbeddingsGigaR",
+        "coll": client.get_or_create_collection(name="EmbeddingsGigaR",
                                                   embedding_function=GigaChatEmb('EmbeddingsGigaR'))
-    result["SbertLarge"] = client.get_or_create_collection(name="SbertLarge",
+    })
+    result.append({
+        "name": "SbertLarge",
+        "coll": client.get_or_create_collection(name="SbertLarge",
                                                   embedding_function=SentenceTransformerEmbeddingFunction(model_name='ai-forever/sbert_large_nlu_ru'))
+    })
     return result # можно попробовать завернуть в list(zip) 
 
 
