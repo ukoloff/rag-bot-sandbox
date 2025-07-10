@@ -1,4 +1,4 @@
-from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
+from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction, DefaultEmbeddingFunction
 from langchain_gigachat import GigaChatEmbeddings
 from chromadb import Documents, EmbeddingFunction, Embeddings
 from dotenv import load_dotenv
@@ -28,6 +28,7 @@ def get_collection():
     for k, v in emb_functions.items():
         if v is None:
             coll = client.get_or_create_collection(name=k)
+            v = DefaultEmbeddingFunction()
         else:
             coll = client.get_or_create_collection(name=k, embedding_function=v)
         result.append({
@@ -43,6 +44,6 @@ if __name__ == '__main__':
     from dotenv import load_dotenv
     load_dotenv()
     z = get_collection()
-    emb = z[1]['emb']
+    emb = z[0]['emb']
     print(emb(['Hello']))
     print(chromadb.PersistentClient(path=normpath(join(dirname(__file__), '..', 'db'))).list_collections())
