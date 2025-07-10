@@ -6,7 +6,7 @@ from embinterface import get_collection
 
 load_dotenv()
 
-path_to_txt = join(dirname(__file__), 'мастер_и_маргарита.txt')
+path_to_txt = normpath(join(dirname(__file__), 'мастер_и_маргарита.txt'))
 loader = TextLoader(path_to_txt, encoding="UTF-8")
 document = loader.load()
 text_splitter = RecursiveCharacterTextSplitter(
