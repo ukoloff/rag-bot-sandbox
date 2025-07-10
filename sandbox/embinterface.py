@@ -26,12 +26,27 @@ def get_collection():
                                                   embedding_function=GigaChatEmb('EmbeddingsGigaR')))
     result.append(client.get_or_create_collection(name="SbertLarge",
                                                   embedding_function=SentenceTransformerEmbeddingFunction(model_name='ai-forever/sbert_large_nlu_ru')))
-    return result
-
+    return result # можно попробовать завернуть в list(zip) 
 # более структурированный вывод
+
+def get_collection_x():
+    client = chromadb.PersistentClient(path=normpath(join(dirname(__file__), '..', 'db')))
+    result = {}
+    result["default"] = client.get_or_create_collection(name="default")
+    result["Embeddings"] = client.get_or_create_collection(name="Embeddings",
+                                                  embedding_function=GigaChatEmb())
+    result["EmbeddingsGigaR"] = client.get_or_create_collection(name="EmbeddingsGigaR",
+                                                  embedding_function=GigaChatEmb('EmbeddingsGigaR'))
+    result["SbertLarge"] = client.get_or_create_collection(name="SbertLarge",
+                                                  embedding_function=SentenceTransformerEmbeddingFunction(model_name='ai-forever/sbert_large_nlu_ru'))
+    return result # можно попробовать завернуть в list(zip) 
+
 
 if __name__ == '__main__':
     from dotenv import load_dotenv
     load_dotenv()
-    x = GigaChatEmb()
-    print(x(['Hello']))
+
+    z = get_collection()
+    # x = GigaChatEmb()
+    # print(x(['Hello']))
+    print(chromadb.PersistentClient(path=normpath(join(dirname(__file__), '..', 'db'))).list_collections())

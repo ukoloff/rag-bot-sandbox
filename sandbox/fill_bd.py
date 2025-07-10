@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from langchain_community.document_loaders import TextLoader
 from os.path import normpath, join, dirname
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from embinterface import get_collection
+from embinterface import get_collection_x
 
 load_dotenv()
 
@@ -16,7 +16,7 @@ text_splitter = RecursiveCharacterTextSplitter(
 texts = text_splitter.split_documents(document)
 new_texts = [doc.page_content for doc in texts]
 
-for coll in get_collection():
+for coll in get_collection_x().values():
     if len(coll.get(limit=1)['ids']) > 0:
         continue
     print("Заполняю коллекцию")
