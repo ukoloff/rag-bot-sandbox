@@ -19,7 +19,11 @@ class GigaChatEmb(EmbeddingFunction):
 def get_collection():
     client = chromadb.PersistentClient(path=normpath(join(dirname(__file__), '..', 'db')))
     result = []
-    result["default"] = client.get_or_create_collection(name="default")
+    result.append({
+        "name": "default",
+        "coll": client.get_or_create_collection(name="default"),
+    })
+
     result["Embeddings"] = client.get_or_create_collection(name="Embeddings",
                                                   embedding_function=GigaChatEmb())
     result["EmbeddingsGigaR"] = client.get_or_create_collection(name="EmbeddingsGigaR",
