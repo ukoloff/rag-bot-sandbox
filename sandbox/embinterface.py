@@ -16,6 +16,12 @@ class GigaChatEmb(EmbeddingFunction):
         return [np.array(vec)
                 for vec in self.giga.embed_documents(input)]
 
+class CollectionInfo:
+    def __init__(self, name, coll, emb):
+        self.name = name
+        self.coll = coll
+        self.emb = emb
+
 def get_collection():
     client = chromadb.PersistentClient(path=normpath(join(dirname(__file__), '..', 'db')))
     result = []
@@ -31,12 +37,7 @@ def get_collection():
             v = DefaultEmbeddingFunction()
         else:
             coll = client.get_or_create_collection(name=k, embedding_function=v)
-        result.append({
-            "name": k,
-            "coll": coll,
-            "emb": v,
-
-        })
+        result.append(CollectionInfo(name=k, coll=coll, emb=v))
     return result # можно попробовать завернуть в list(zip) 
 
 
@@ -44,6 +45,6 @@ if __name__ == '__main__':
     from dotenv import load_dotenv
     load_dotenv()
     z = get_collection()
-    emb = z[0]['emb']
+    emb = z[0].emb
     print(emb(['Hello']))
     print(chromadb.PersistentClient(path=normpath(join(dirname(__file__), '..', 'db'))).list_collections())
