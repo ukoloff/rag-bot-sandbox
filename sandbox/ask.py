@@ -1,4 +1,4 @@
-from embinterface import get_collection_x
+from embinterface import get_collection
 from os.path import normpath, join, dirname
 from dotenv import load_dotenv
 
@@ -29,7 +29,7 @@ td {{
 n_result = 5
 names = ['Default (all-MiniLM-L6-v2)', 'Embeddings', 'EmbeddingsGigaR', 'SbertLarge']
 
-for i, (name, coll) in enumerate(get_collection_x().items()): # доделать
+for i, (name, coll) in enumerate(get_collection().items()): # доделать
     query_texts = coll.query(query_texts=[question], n_results=n_result)['documents'][0]
     f.write(f"""<table border>
     <th colspan="2">{name}</th>
