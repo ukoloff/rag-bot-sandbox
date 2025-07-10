@@ -27,33 +27,27 @@ td {{
 <hr>
 """)
 n_result = 5
-query_texts = []
 names = ['Default (all-MiniLM-L6-v2)', 'Embeddings', 'EmbeddingsGigaR', 'SbertLarge']
 
-for name, coll in zip(names, get_collection()): # доделать
-    query_texts.append(coll.query(query_texts=[question], n_results=n_result)['documents'][0])
-for i in range(len(names)):
-    if i == 0:
-        f.write(f"""<table border>
-    <th colspan="2">default</th>
+for i, (name, coll) in enumerate(zip(names, get_collection())): # доделать
+    query_texts = coll.query(query_texts=[question], n_results=n_result)['documents'][0]
+    f.write(f"""<table border>
+    <th colspan="2">{name}</th>
 """)
-    else:
-        f.write(f"""<table border>
-    <th colspan="2">{names[i]}</th>
-""")
-    for n in range(5):
+    for i, doc in enumerate(query_texts):
         f.write(f"""
                 <tr>
                     <th>
-                            <u>Ответ {n+1}:</u>
+                            <u>Ответ {i+1}:</u>
                     </th>
                     <td>
-                        {query_texts[i][n].replace('\n', '<br>\n')}
+                        {doc.replace('\n', '<br>\n')}
                     </td>
                 </tr>
             """)
     f.write("""
         </table>
-        </body>
-        </html>
         """)
+f.write("""
+        </body>
+        </html>""")
