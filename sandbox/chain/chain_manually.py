@@ -4,6 +4,7 @@ from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_gigachat import GigaChat, GigaChatEmbeddings
+from langchain_core.runnables import RunnablePassthrough, RunnableLambda
 
 load_dotenv()
 llm = GigaChat()
@@ -27,10 +28,14 @@ def join(docs):
 prompt = ChatPromptTemplate.from_template(system_prompt)
 question = input("Введите ваш вопрос: ")
 
+def view(x):
+    return x
+
 chain = (
     {
         "context": retriever | join, "question": RunnablePassthrough()
     }
+    | RunnableLambda(view)
     | prompt
     | llm
 )
