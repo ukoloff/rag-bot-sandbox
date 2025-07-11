@@ -7,15 +7,18 @@ from aiogram import Bot, Dispatcher, html
 from aiogram.types import Message
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from langchain_gigachat import GigaChat, GigaChatEmbeddings
 
 load_dotenv()
 
 dp = Dispatcher()
 TOKEN = getenv("BOT_TOKEN")
+llm = GigaChat()
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    await message.answer(f"Hello, {html.bold(message.from_user.full_name)}!")
+    res = await llm.ainvoke(f"Привет, меня зовут {message.from_user.full_name}!")
+    await message.answer(res.content)
 
 @dp.message()
 async def echo_handler(message: Message) -> None:
@@ -31,3 +34,4 @@ async def main() -> None:
 if __name__ == "__main__":
     # logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     asyncio.run(main())
+    
