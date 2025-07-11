@@ -2,9 +2,8 @@ from dotenv import load_dotenv
 from os.path import normpath, join, dirname
 from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import RunnablePassthrough
-from langchain_gigachat import GigaChat, GigaChatEmbeddings
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda
+from langchain_gigachat import GigaChat, GigaChatEmbeddings
 
 load_dotenv()
 llm = GigaChat()
