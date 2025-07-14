@@ -48,7 +48,7 @@ def get_collection() -> list[CollectionInfo]:
         else:
             coll = client.get_or_create_collection(name=k, embedding_function=v)
         result.append(CollectionInfo(name=k, coll=coll, emb=v))
-    return result # можно попробовать завернуть в list(zip) 
+    return result
 
 
 if __name__ == "__main__":
