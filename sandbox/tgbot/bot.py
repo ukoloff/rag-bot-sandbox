@@ -21,17 +21,16 @@ TOKEN = getenv("BOT_TOKEN")
 llm = GigaChat()
 
 path_to_db = normpath(join(dirname(__file__), '..', '..', 'chroma.kb'))
-db = Chroma(collection_name="kb.gigaR", embedding_function=GigaChatEmbeddings(model='EmbeddingsGigaR'), persist_directory=path_to_db)
+db = Chroma(collection_name="kb.gigaRtext", embedding_function=GigaChatEmbeddings(model='Embeddings'), persist_directory=path_to_db)
 retriever = db.as_retriever()
 
 system_prompt = """Представь, что ты ассистент поддержки, отвечающий на важные
     мне вопросы исключительно на русском языке, на основании контекста, написанного ниже.
-    Если информации нет в контексте, то напиши кратко: "Не могу помочь с этим вопросом" и ничего больше.
-    При ответе на вопрос также ни в коем случае не упоминай, 
-    что существует какой-то контекст. Отвечай языком Михаила Васильевича Ломоносова.
+    Если не знаешь ответа, то напиши просто: "Не могу помочь с этим вопросом".
+    Отвечай языком Михайлы Васильича Ломоносова.
     Контекст: {context}
     Вопрос: {question}
-    Твой ответ::"""
+    Твой ответ: """
 
 def join(docs):
     s = '\n\n'.join(doc.page_content for doc in docs)
