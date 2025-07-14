@@ -2,13 +2,13 @@ from dotenv import load_dotenv
 from os.path import normpath, join, dirname
 from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import RunnablePassthrough, RunnableLambda
+from langchain_core.runnables import RunnablePassthrough
 from langchain_gigachat import GigaChat, GigaChatEmbeddings
 
 load_dotenv()
 llm = GigaChat()
 path_to_db = normpath(join(dirname(__file__), '..', '..', 'chroma.kb'))
-db = Chroma(collection_name="kb.gigaR", embedding_function=GigaChatEmbeddings(model='EmbeddingsGigaR'), persist_directory=path_to_db)
+db = Chroma(collection_name="kb.gigaRtext", embedding_function=GigaChatEmbeddings(model='Embeddings'), persist_directory=path_to_db)
 retriever = db.as_retriever()
 
 system_prompt = """Представь, что ты ассистент поддержки, отвечающий на важные
@@ -18,7 +18,7 @@ system_prompt = """Представь, что ты ассистент подде
     что существует какой-то контекст. Отвечай языком Михаила Васильевича Ломоносова.
     Контекст: {context}
     Вопрос: {question}
-    Твой ответ:"""
+    Твой ответ: """
 
 def join(docs):
     s = '\n\n'.join(doc.page_content for doc in docs)
@@ -27,15 +27,13 @@ def join(docs):
 prompt = ChatPromptTemplate.from_template(system_prompt)
 question = input("Введите ваш вопрос: ")
 
-def view(x):
-    return x
-
 chain = (
     {
         "context": retriever | join, "question": RunnablePassthrough()
     }
-    | RunnableLambda(view)
     | prompt
     | llm
 )
-print(chain.invoke(question).content)
+invoking = chain.invoke(question)
+
+print(invoking.content)
