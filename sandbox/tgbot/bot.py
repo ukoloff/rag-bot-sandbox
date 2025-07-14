@@ -13,6 +13,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import Message
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from load_prompt import fresh_prompt
 
 load_dotenv()
 
@@ -42,7 +43,7 @@ chain = (
     {
         "context": retriever | join, "question": RunnablePassthrough()
     }
-    | prompt
+    | fresh_prompt
     | llm
 )
 
