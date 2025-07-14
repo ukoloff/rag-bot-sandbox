@@ -49,13 +49,19 @@ chain = (
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    res = await llm.ainvoke(f"Привет, меня зовут {message.from_user.full_name}!")
-    await message.answer(res.content)
+    try:
+        res = await llm.ainvoke(f"Привет, меня зовут {message.from_user.full_name}!")
+        await message.answer(res.content)
+    except Exception:
+        await message.answer("Произошла ошибка")
 
 @dp.message()
 async def chat_handler(message: Message) -> None:
-    res = await chain.ainvoke(message.text)
-    await message.answer(res.content)
+    try:
+        res = await chain.ainvoke(message.text)
+        await message.answer(res.content)
+    except Exception:
+        await message.answer("Произошла ошибка")
 
 async def main() -> None:
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
