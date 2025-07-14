@@ -50,23 +50,25 @@ chain = (
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    try:
-        res = await llm.ainvoke(f"Привет, меня зовут {message.from_user.full_name}!")
-        await message.answer(res.content)
-    except ResponseError as e:
-        await message.answer(f"Ошибка GigaChat: {e.args[1]}")
-    except Exception as e:
-        await message.answer("Произошла ошибка")
+    async with lock:
+        try:
+            res = await llm.ainvoke(f"Привет, меня зовут {message.from_user.full_name}!")
+            await message.answer(res.content)
+        except ResponseError as e:
+            await message.answer(f"Ошибка GigaChat: {e.args[1]}")
+        except Exception as e:
+            await message.answer("Произошла ошибка")
 
 @dp.message()
 async def chat_handler(message: Message) -> None:
-    try:
-        res = await chain.ainvoke(message.text)
-        await message.answer(res.content)
-    except ResponseError as e:
-        await message.answer(f"Ошибка GigaChat: {e.args[1]}")
-    except Exception as e:
-        await message.answer("Произошла ошибка")
+    async with lock:
+        try:
+            res = await chain.ainvoke(message.text)
+            await message.answer(res.content)
+        except ResponseError as e:
+            await message.answer(f"Ошибка GigaChat: {e.args[1]}")
+        except Exception as e:
+            await message.answer("Произошла ошибка")
 
 async def main() -> None:
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
@@ -74,5 +76,6 @@ async def main() -> None:
 
 if __name__ == "__main__":
     # logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+    lock = asyncio.Lock()
     print("Запускаю...")
     asyncio.run(main())
