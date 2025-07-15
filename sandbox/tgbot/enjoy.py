@@ -1,9 +1,9 @@
 import asyncio
 from os import getenv
-
+import aiofiles
 from os.path import normpath, join, dirname
 from langchain_chroma import Chroma
-from langchain_core.runnables import RunnablePassthrough
+from langchain_core.runnables import RunnablePassthrough, RunnableLambda
 from langchain_gigachat import GigaChat, GigaChatEmbeddings
 from langchain.schema import HumanMessage, AIMessage
 from langchain_core.chat_history import InMemoryChatMessageHistory
@@ -29,42 +29,52 @@ dp = Dispatcher()
 TOKEN = getenv("BOT_TOKEN")
 llm = GigaChat()
 
-path_to_db = normpath(join(dirname(__file__), '..', '..', 'chroma.kb'))
-db = Chroma(collection_name="kb.gigaRtext", embedding_function=GigaChatEmbeddings(model='Embeddings'), persist_directory=path_to_db)
+path_to_db = normpath(join(dirname(__file__), "..", "..", "chroma.kb"))
+path_to_file = normpath(join(dirname(__file__), 'prompt.txt'))
+db = Chroma(
+    collection_name="kb.gigaRtext",
+    embedding_function=GigaChatEmbeddings(model="Embeddings"),
+    persist_directory=path_to_db,
+)
 retriever = db.as_retriever()
 user_histories = {}
 
+
 def join(docs):
-    s = '\n\n'.join(doc.page_content for doc in docs)
+    s = "\n\n".join(doc.page_content for doc in docs)
     return s
 
-prompt = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-            """Представь, что ты ассистент поддержки, отвечающий на важные
-                мне вопросы исключительно на русском языке, на основании контекста, написанного ниже.
-                Отвечай языком Михайлы Васильича Ломоносова.
-""",
-        ),
-        # Use "chat_history" as the key for conversation history without modifying it if possible.
-        MessagesPlaceholder(variable_name="chat_history"),
-        ("human", "#Context:\n{context}\n#Question:\n{question}"),  # Use user input as a variable.
-    ]
-)
+
+async def prompt(data):
+    async with aiofiles.open(file=path_to_file, encoding="UTF-8") as f:
+        text = await f.read()
+    return await ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                text,
+            ),
+            # Use "chat_history" as the key for conversation history without modifying it if possible.
+            MessagesPlaceholder(variable_name="chat_history"),
+            (
+                "human",
+                "Контекст:\n{context}\nВопрос:\n{question}",
+            ),  # Use user input as a variable.
+        ]
+    ).ainvoke(data)
+
 
 chain = (
-    # RunnableLambda(view) |
     {
         "context": itemgetter("question") | retriever | join,
         "question": itemgetter("question"),
         "chat_history": itemgetter("chat_history"),
     }
-    | prompt
-    # | second
+    | RunnableLambda(afunc=prompt, func=lambda x: x)
     | llm
     | StrOutputParser()
 )
+
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
@@ -85,16 +95,19 @@ async def command_start_handler(message: Message) -> None:
             await message.answer("Произошла ошибка")
 
 
-
 ##########################
+
 
 @dp.message()
 async def chat_handler(message: Message) -> None:
     async with lock:
         try:
-            
-            res = await chain_with_history.ainvoke({"question": message.text},
-                                                    config=RunnableConfig(configurable={"session_id": message.from_user.id}))
+            res = await chain_with_history.ainvoke(
+                {"question": message.text},
+                config=RunnableConfig(
+                    configurable={"session_id": message.from_user.id}
+                ),
+            )
             await message.answer(res)
         except ResponseError as e:
             await message.answer(f"Ошибка GigaChat: {e.args[1]}")
@@ -102,14 +115,16 @@ async def chat_handler(message: Message) -> None:
             print(e)
             await message.answer("Произошла ошибка")
 
+
 store = {}
 
+
 def get_session_history(session_ids):
-    # print(f"[Conversation session ID]: {session_ids}")
     if session_ids not in store:  # When the session ID is not in the store.
         # Create a new ChatMessageHistory object and save it in the store.
         store[session_ids] = ChatMessageHistory()
     return store[session_ids]  # Return the session history for the given session ID.
+
 
 chain_with_history = RunnableWithMessageHistory(
     chain,
@@ -122,6 +137,7 @@ chain_with_history = RunnableWithMessageHistory(
 async def main() -> None:
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     await dp.start_polling(bot)
+
 
 if __name__ == "__main__":
     # logging.basicConfig(level=logging.INFO, stream=sys.stdout)
