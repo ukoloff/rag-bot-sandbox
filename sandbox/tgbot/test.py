@@ -1,6 +1,7 @@
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_gigachat import GigaChat, GigaChatEmbeddings
 from langchain_core.runnables.config import RunnableConfig
+from langchain_core.runnables import RunnableLambda
 from dotenv import load_dotenv
 from os.path import normpath, join, dirname
 from langchain_core.output_parsers import StrOutputParser
@@ -35,18 +36,27 @@ def join(docs):
     s = '\n\n'.join(doc.page_content for doc in docs)
     return s
 
-def view(x):
+def view(x, config):
+    print(">>>", x)
+    return x
+
+
+##############
+
+
+def second(x, config):
     print(">>>", x)
     return x
 
 chain = (
+    # RunnableLambda(view) |
     {
         "context": itemgetter("question") | retriever | join,
         "question": itemgetter("question"),
         "chat_history": itemgetter("chat_history"),
     }
     | prompt
-    | view
+    # | second
     | llm
     | StrOutputParser()
 )
