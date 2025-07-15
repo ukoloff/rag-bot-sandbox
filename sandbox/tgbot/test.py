@@ -31,17 +31,22 @@ prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
+def join(docs):
+    s = '\n\n'.join(doc.page_content for doc in docs)
+    return s
+
 def view(x):
     print(">>>", x)
     return x
 
 chain = (
     {
-        "context": itemgetter("question") | retriever,
+        "context": itemgetter("question") | retriever | join,
         "question": itemgetter("question"),
         "chat_history": itemgetter("chat_history"),
     }
     | prompt
+    | view
     | llm
     | StrOutputParser()
 )
@@ -60,7 +65,7 @@ def get_session_history(session_ids):
 chain_with_history = RunnableWithMessageHistory(
     chain,
     get_session_history,  # A function to retrieve session history.
-    input_messages_key=f"question",  # The key where the user's question will be inserted into the template variable.
+    input_messages_key="question",  # The key where the user's question will be inserted into the template variable.
     history_messages_key="chat_history",  # The key for the message in the history.
 )
 
