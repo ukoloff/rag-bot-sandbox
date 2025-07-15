@@ -3,3 +3,4 @@
 /db/
 /sandbox/output
 *.pyc
+/chroma.kb
