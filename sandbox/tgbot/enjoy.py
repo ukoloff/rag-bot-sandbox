@@ -30,7 +30,7 @@ TOKEN = getenv("BOT_TOKEN")
 llm = GigaChat()
 
 path_to_db = normpath(join(dirname(__file__), "..", "..", "chroma.kb"))
-path_to_file = normpath(join(dirname(__file__), 'prompt.txt'))
+path_to_file = normpath(join(dirname(__file__), "prompt.txt"))
 db = Chroma(
     collection_name="kb.gigaRtext",
     embedding_function=GigaChatEmbeddings(model="Embeddings"),
@@ -78,24 +78,7 @@ chain = (
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    async with lock:
-        try:
-            user_id = message.from_user.id
-            if user_id not in user_histories:
-                user_histories[user_id] = InMemoryChatMessageHistory()
-            history = user_histories[user_id]
-            text = f"Привет, меня зовут {message.from_user.full_name}!"
-            history.add_message(HumanMessage(content=text))
-            res = await llm.ainvoke(text)
-            history.add_message(AIMessage(content=res.content))
-            await message.answer(res.content)
-        except ResponseError as e:
-            await message.answer(f"Ошибка GigaChat: {e.args[1]}")
-        except Exception as e:
-            await message.answer("Произошла ошибка")
-
-
-##########################
+    await message.answer("Привет, я бот поддержки!")
 
 
 @dp.message()
