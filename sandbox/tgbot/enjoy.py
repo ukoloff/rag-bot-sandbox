@@ -34,7 +34,7 @@ db = Chroma(
     embedding_function=GigaChatEmbeddings(model="Embeddings"),
     persist_directory=path_to_db,
 )
-retriever = db.as_retriever(kwargs=8)
+retriever = db.as_retriever(search_kwargs={"k": 7})
 user_histories = {}
 
 
@@ -60,7 +60,6 @@ async def prompt(data):
             ),  # Use user input as a variable.
         ]
     ).ainvoke(data)
-
 
 chain = (
     {
