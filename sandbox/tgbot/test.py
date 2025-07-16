@@ -1,12 +1,10 @@
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_gigachat import GigaChat, GigaChatEmbeddings
 from langchain_core.runnables.config import RunnableConfig
-from langchain_core.runnables import RunnableLambda
 from dotenv import load_dotenv
 from os.path import normpath, join, dirname
 from langchain_core.output_parsers import StrOutputParser
 from langchain_community.chat_message_histories import ChatMessageHistory
-from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from operator import itemgetter
 from langchain_chroma import Chroma
