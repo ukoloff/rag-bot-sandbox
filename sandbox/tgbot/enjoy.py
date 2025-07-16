@@ -3,10 +3,8 @@ from os import getenv
 import aiofiles
 from os.path import normpath, join, dirname
 from langchain_chroma import Chroma
-from langchain_core.runnables import RunnablePassthrough, RunnableLambda
+from langchain_core.runnables import RunnableLambda
 from langchain_gigachat import GigaChat, GigaChatEmbeddings
-from langchain.schema import HumanMessage, AIMessage
-from langchain_core.chat_history import InMemoryChatMessageHistory
 from gigachat.exceptions import ResponseError
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
@@ -36,7 +34,7 @@ db = Chroma(
     embedding_function=GigaChatEmbeddings(model="Embeddings"),
     persist_directory=path_to_db,
 )
-retriever = db.as_retriever()
+retriever = db.as_retriever(kwargs=8)
 user_histories = {}
 
 
