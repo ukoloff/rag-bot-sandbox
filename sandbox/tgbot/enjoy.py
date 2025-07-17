@@ -19,12 +19,12 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import Message
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-# from load_prompt import fresh_prompt
 
 load_dotenv()
 
-dp = Dispatcher()
 TOKEN = getenv("BOT_TOKEN")
+bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+dp = Dispatcher()
 llm = GigaChat()
 
 path_to_db = normpath(join(dirname(__file__), "..", "..", "chroma.kb"))
@@ -95,7 +95,6 @@ async def chat_handler(message: Message) -> None:
             print(e)
             await message.answer("Произошла ошибка")
 
-
 store = {}
 
 
@@ -113,14 +112,19 @@ chain_with_history = RunnableWithMessageHistory(
     history_messages_key="chat_history",  # The key for the message in the history.
 )
 
-
 async def main() -> None:
-    bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-    await dp.start_polling(bot)
+    try:
+        await dp.start_polling(bot)
+    finally:
+        await bot.session.close()
+    print('...')
 
 lock = asyncio.Lock()
 
 def start_bot():
     # logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     print("Запускаю...")
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("Бот завершил работу.")
