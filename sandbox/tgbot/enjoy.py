@@ -30,11 +30,11 @@ llm = GigaChat()
 path_to_db = normpath(join(dirname(__file__), "..", "..", "chroma.kb"))
 path_to_file = normpath(join(dirname(__file__), "prompt.txt"))
 db = Chroma(
-    collection_name="kb.gigaRtext",
-    embedding_function=GigaChatEmbeddings(model="Embeddings"),
+    collection_name="kb.gigaR",
+    embedding_function=GigaChatEmbeddings(model="EmbeddingsGigaR"),
     persist_directory=path_to_db,
 )
-retriever = db.as_retriever(search_kwargs={"k": 7})
+retriever = db.as_retriever(search_kwargs={"k": 5})
 user_histories = {}
 
 
@@ -118,9 +118,9 @@ async def main() -> None:
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     await dp.start_polling(bot)
 
+lock = asyncio.Lock()
 
-if __name__ == "__main__":
+def start_bot():
     # logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-    lock = asyncio.Lock()
     print("Запускаю...")
     asyncio.run(main())
