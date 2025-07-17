@@ -26,7 +26,7 @@ def load_document(pdf_folder_path):
                 print(e)
     return documents
 
-def split_text(documents, chunk_size=1000, chunk_overlap=200, min_chunk_size=200):
+def split_text(documents, chunk_size=2000, chunk_overlap=200, min_chunk_size=200):
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap
