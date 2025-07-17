@@ -8,14 +8,17 @@ from langchain_core.prompts import ChatPromptTemplate
 load_dotenv()
 llm = GigaChat()
 
-path_to_txt = normpath(join(dirname(__file__), 'мастер_и_маргарита.txt'))
+path_to_txt = normpath(join(dirname(__file__), 'война_и_мир.txt'))
 
-path_to_write = normpath(join(dirname(__file__), 'output', 'мастер_и_маргарита_output.txt'))
+path_to_write = normpath(join(dirname(__file__), 'output', 'война_и_мир_output.txt'))
 
 def load_document(file_path):
-    loader = TextLoader(file_path, encoding="UTF-8")
+    loader = TextLoader(file_path, encoding="windows-1251")
     documents = loader.load()
     return documents
+
+doc = load_document(path_to_txt)
+print(doc[0])
 
 prompt = ChatPromptTemplate.from_messages(
     [("system", "Напишите краткое резюме следующего текста:\\n\\n{context}")]
