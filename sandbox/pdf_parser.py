@@ -5,7 +5,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_gigachat import GigaChatEmbeddings
 from langchain_chroma import Chroma
 from langchain.schema import Document
-from os.path import normpath, join, dirname, exists
+from os.path import normpath, join, dirname
 from dotenv import load_dotenv
 
 load_dotenv()
