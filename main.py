@@ -1,11 +1,3 @@
-from dotenv import load_dotenv
-from gigachat import GigaChat as GiChat
-load_dotenv()
+from sandbox.tgbot.enjoy import start_bot
 
-question = "Какой плащ был у Понтия Пилата?"
-
-llmG = GiChat()
-
-resG = llmG.chat(question)
-
-print(resG.choices[0].message.content)
+start_bot()
