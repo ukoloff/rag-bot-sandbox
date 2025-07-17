@@ -4,3 +4,5 @@
 /sandbox/output
 *.pyc
 /chroma.kb
+/pdfs
+/sandbox/chroma.kb
