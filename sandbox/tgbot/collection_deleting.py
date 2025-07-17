@@ -6,7 +6,7 @@ pdf_folder_path = normpath(join(dirname(__file__), '..', '..', 'pdfs'))
 
 db_path = normpath(join(dirname(__file__), '..', '..', 'chroma.kb'))
 client = chromadb.PersistentClient(path=db_path)
-collection = client.get_collection(name='kb.gigaRtext')
+collection = client.get_collection(name='kb.gigaR')
 # print(collection.get(include=['metadatas']))
 
 for file in os.listdir(pdf_folder_path):
