@@ -30,8 +30,8 @@ llm = GigaChat()
 path_to_db = normpath(join(dirname(__file__), "..", "..", "chroma.kb"))
 path_to_file = normpath(join(dirname(__file__), "prompt.txt"))
 db = Chroma(
-    collection_name="kb.gigaR",
-    embedding_function=GigaChatEmbeddings(model="EmbeddingsGigaR"),
+    collection_name="kb.gigaRtext",
+    embedding_function=GigaChatEmbeddings(model="Embeddings"),
     persist_directory=path_to_db,
 )
 retriever = db.as_retriever(search_kwargs={"k": 5})
