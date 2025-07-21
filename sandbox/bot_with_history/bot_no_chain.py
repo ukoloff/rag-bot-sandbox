@@ -1,6 +1,7 @@
 import asyncio
 
 from os import getenv
+import time
 from dotenv import load_dotenv
 from os.path import normpath, join, dirname
 
@@ -10,6 +11,7 @@ from langchain_gigachat import GigaChat, GigaChatEmbeddings
 from gigachat.exceptions import ResponseError
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 
+import aiofiles
 from aiogram.client.default import DefaultBotProperties
 from aiogram import Bot, Dispatcher
 from aiogram.types import Message
@@ -24,6 +26,8 @@ llm = GigaChat()
 path_to_db = normpath(join(dirname(__file__), '..', '..', 'chroma.kb'))
 db = Chroma(collection_name="kb.gigaRtext", embedding_function=GigaChatEmbeddings(model='Embeddings'), persist_directory=path_to_db)
 lock = asyncio.Lock()
+path_to_log = normpath(join(dirname(__file__), '..', 'output'))
+print(type(path_to_log))
 
 system_prompt = """Представь, что ты ассистент поддержки, отвечающий на важные
     мне вопросы исключительно на русском языке, на основании контекста, написанного ниже.
@@ -32,14 +36,15 @@ system_prompt = """Представь, что ты ассистент подде
     что существует какой-то контекст. Отвечай языком Михаила Васильевича Ломоносова.
     """
 
-def join(docs):
+def join_context(docs):
     s = '\n\n'.join(doc.page_content for doc in docs)
     return s
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
     await message.answer("Привет, я бот поддержки!")
-
+# id user, name user, в txt, utf-8
+# парс в output: время, сообщение пользователя, время, ответ ИИ
 history = {}
 
 @dp.message()
@@ -47,20 +52,25 @@ async def chat_handler(message: Message) -> None:
     id = message.chat.id
     if id not in history:
         history[id] = []
+    file_path = join(path_to_log, f"{id}.txt")
+    f = await aiofiles.open(file=file_path, encoding="UTF-8", mode='a')
     this_history = history[id]
     if len(this_history) >= 20:
         this_history = this_history[2:]
     async with lock:
         try:
             question = message.text
-            context = join(db.similarity_search(query=str(question), k=5))
-            prompt = f"""{system_prompt}
-Контекст: {context}
+            await f.write(f"""Время запроса: {time.ctime(time.time())}
+Ввод пользователя: {question}\n""")
+            context = join_context(db.similarity_search(query=question, k=5)) # добавить длину символов
+            prompt = f"""Контекст: {context}
 Вопрос: {question}
 Твой ответ: """
             this_history.append(HumanMessage(content=prompt))
-            answer_llm = await llm.ainvoke(this_history)
+            answer_llm = await llm.ainvoke([SystemMessage(system_prompt)] + this_history)
             this_history.append(AIMessage(content=answer_llm.content))
+            await f.write(f"""Время ответа от LLM: {time.ctime(time.time())}
+Ответ LLM: {answer_llm.content}\n""")
             await message.answer(answer_llm.content, parse_mode=ParseMode.MARKDOWN)
         except ResponseError as e:
             await message.answer(f"Ошибка GigaChat: {e.args[1]}")
@@ -71,7 +81,7 @@ async def chat_handler(message: Message) -> None:
 # prompt = ChatPromptTemplate.from_template(system_prompt)
 # question = input("Введите ваш вопрос: ")
 #
-# context = join(db.similarity_search(query=question, k=5))
+# context = join_context(db.similarity_search(query=question, k=5))
 #
 # answer = llm.invoke(system_prompt + '\n' + "Контекст: " + context + '\n' +
 #                     'Вопрос: ' + question + '\n' + "Твой ответ: ")
