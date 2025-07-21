@@ -48,6 +48,8 @@ async def chat_handler(message: Message) -> None:
     if id not in history:
         history[id] = []
     this_history = history[id]
+    if len(this_history) >= 20:
+        this_history = this_history[2:]
     async with lock:
         try:
             question = message.text
