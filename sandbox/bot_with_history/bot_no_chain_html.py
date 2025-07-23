@@ -1,5 +1,6 @@
 import asyncio
 
+from html import escape
 from os import getenv
 from dotenv import load_dotenv
 from os.path import normpath, join, dirname
@@ -36,6 +37,9 @@ system_prompt = """Представь, что ты ассистент подде
 
 async def write_html(path, question, answer, context):
     f = await aiofiles.open(path, 'w', encoding='utf-8')
+    context_escaped = []
+    for c in context:
+        context_escaped.append(escape(c).replace("\n", "<br>"))
     await f.write(f"""<html>
 <head>
 <meta charset="utf-8">
@@ -50,8 +54,8 @@ async def write_html(path, question, answer, context):
 <details>
     <summary>Чанки: </summary>
 """)
-    for i in range(len(context)):
-        await f.write(f"<p>Чанк {i+1}: {context[i]}</p>")
+    for i in range(len(context_escaped)):
+        await f.write(f"<p>Чанк {i+1}: {context_escaped[i]}</p>\n")
     await f.write("""</details>
 </body>
 </html>
