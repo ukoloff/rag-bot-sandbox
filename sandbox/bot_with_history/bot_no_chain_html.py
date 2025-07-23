@@ -35,11 +35,11 @@ system_prompt = """Представь, что ты ассистент подде
     что существует какой-то контекст. Отвечай языком Михаила Васильевича Ломоносова.
     """
 
+def escape_html(str):
+    return escape(str).replace("\n", "<br>")
+
 async def write_html(path, question, answer, context):
-    f = await aiofiles.open(path, 'w', encoding='utf-8')
-    context_escaped = []
-    for c in context:
-        context_escaped.append(escape(c).replace("\n", "<br>"))
+    f = await aiofiles.open(path, 'a', encoding='utf-8')
     await f.write(f"""<html>
 <head>
 <meta charset="utf-8">
@@ -49,13 +49,17 @@ async def write_html(path, question, answer, context):
 <hr>
 <details>
     <summary>Ответ LLM: </summary>
-    <p>{answer}</p>
+    <p>{escape_html(answer)}</p>
 </details>
 <details>
     <summary>Чанки: </summary>
 """)
-    for i in range(len(context_escaped)):
-        await f.write(f"<p>Чанк {i+1}: {context_escaped[i]}</p>\n")
+    for i, con in enumerate(context):
+        await f.write(f"""    <details>
+        <summary>Чанк {i}: </summary>
+        <p>{escape_html(con)}</p>>
+    </details>
+""")
     await f.write("""</details>
 </body>
 </html>
