@@ -40,7 +40,7 @@ system_prompt = """Представь, что ты ассистент подде
     """
 
 def join_context(docs):
-    s = '\n\n'.join(doc.page_content for doc in docs)
+    s = '\n\n'.join(doc for doc in docs)
     return s
 
 @dp.message(CommandStart())
