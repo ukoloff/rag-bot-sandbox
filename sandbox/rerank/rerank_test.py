@@ -13,5 +13,6 @@ def join_context(docs):
     return s
 
 question = input()
-context = join_context(db.similarity_search(query=question, k=5))
-print(context)
+context = db.similarity_search(query=question, k=5)
+all_context = join_context(context)
+print(all_context)
