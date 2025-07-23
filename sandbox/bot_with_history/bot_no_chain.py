@@ -27,7 +27,6 @@ path_to_db = normpath(join(dirname(__file__), '..', '..', 'chroma.kb'))
 db = Chroma(collection_name="kb.gigaRtext", embedding_function=GigaChatEmbeddings(model='Embeddings'), persist_directory=path_to_db)
 lock = asyncio.Lock()
 path_to_log = normpath(join(dirname(__file__), '..', 'output'))
-print(type(path_to_log))
 
 system_prompt = """Представь, что ты ассистент поддержки, отвечающий на важные
     мне вопросы исключительно на русском языке, на основании контекста, написанного ниже.
@@ -54,6 +53,8 @@ async def chat_handler(message: Message) -> None:
         history[id] = []
     file_path = join(path_to_log, f"{id}.txt")
     f = await aiofiles.open(file=file_path, encoding="UTF-8", mode='a')
+    await f.write(f"""Логин пользователя: {message.from_user.full_name}
+Username: {message.from_user.username}\n""")
     this_history = history[id]
     if len(this_history) >= 20:
         this_history = this_history[2:]
