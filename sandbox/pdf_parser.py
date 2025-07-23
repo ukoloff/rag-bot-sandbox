@@ -26,7 +26,7 @@ def load_document(pdf_folder_path):
                 print(e)
     return documents
 
-def split_text(documents, chunk_size=3000, chunk_overlap=200, min_chunk_size=300):
+def split_text(documents, chunk_size=1000, chunk_overlap=200, min_chunk_size=300):
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap
@@ -49,11 +49,11 @@ def split_text(documents, chunk_size=3000, chunk_overlap=200, min_chunk_size=300
     return filtered_texts
 
 def update_vector_db(texts, persist_dir, collection_name):
-    embeddings = GigaChatEmbeddings(model='EmbeddingsGigaR')
+    embeddings = GigaChatEmbeddings(model='Embeddings')
     db = Chroma(persist_directory=persist_dir, collection_name=collection_name, embedding_function=embeddings)
     db.add_documents(texts)
     return db
 
 documents = load_document(pdf_folder_path)
 chunks = split_text(documents)
-db = update_vector_db(chunks, db_path, 'kb.gigaR')
+db = update_vector_db(chunks, db_path, 'kb.gigaRtext')
