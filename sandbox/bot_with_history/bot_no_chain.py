@@ -65,6 +65,7 @@ Username: {message.from_user.username}\n""")
 Ввод пользователя: {question}\n""")
             context = join_context(db.similarity_search(query=question, k=5)) # добавить длину символов
             prompt = f"""Контекст: {context}
+Длина символов контекста: {len(context)}
 Вопрос: {question}
 Твой ответ: """
             this_history.append(HumanMessage(content=prompt))
