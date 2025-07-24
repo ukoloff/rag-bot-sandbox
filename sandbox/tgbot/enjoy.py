@@ -27,7 +27,7 @@ from aiogram.enums import ParseMode
 load_dotenv()
 
 TOKEN = getenv("BOT_TOKEN")
-bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN))
 dp = Dispatcher()
 llm = GigaChat()
 
@@ -46,8 +46,8 @@ def escape_html(str):
     return escape(str).replace("\n", "<br>")
 
 async def write_start_html(path):
-    f = await aiofiles.open(path, 'w', encoding='utf-8')
-    await f.write(f"""<html>
+    async with aiofiles.open(path, 'a', encoding='utf-8') as f:
+        await f.write(f"""<html>
 <head>
 <meta charset="utf-8">
 <style>
@@ -61,8 +61,8 @@ details > details {{
 """)
 
 async def write_html(path, question, answer, context):
-    f = await aiofiles.open(path, 'a', encoding='utf-8')
-    await f.write(f"""<h1><b>Вопрос</b>: {question}</h1>
+    async with aiofiles.open(path, 'a', encoding='utf-8') as f:
+        await f.write(f"""<h1><b>Вопрос</b>: {question}</h1>
 <hr>
 <details>
     <summary>Ответ LLM: </summary>
@@ -71,20 +71,19 @@ async def write_html(path, question, answer, context):
 <details>
     <summary>Чанки: </summary>
 """)
-    for i, con in enumerate(context):
-        await f.write(f"""    <details>
+        for i, con in enumerate(context):
+            await f.write(f"""    <details>
         <summary>Чанк {i+1}: </summary>
         <p>{escape_html(con)}</p>>
     </details>
 """)
-    await f.write("</details>\n")
+        await f.write("</details>\n")
 
 context_list = []
 
 def join_context(docs):
     s = "\n\n".join(doc.page_content for doc in docs)
-    context_list.clear()
-    context_list.extend(doc.page_content for doc in docs)
+    context_list[:] = [doc.page_content for doc in docs]
     return s
 
 
