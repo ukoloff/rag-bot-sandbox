@@ -1,4 +1,5 @@
 import asyncio
+import os.path
 
 from html import escape
 from os import getenv
@@ -38,14 +39,24 @@ system_prompt = """Представь, что ты ассистент подде
 def escape_html(str):
     return escape(str).replace("\n", "<br>")
 
-async def write_html(path, question, answer, context):
-    f = await aiofiles.open(path, 'a', encoding='utf-8')
+async def write_start_html(path):
+    f = await aiofiles.open(path, 'w', encoding='utf-8')
     await f.write(f"""<html>
 <head>
 <meta charset="utf-8">
+<style>
+details > details {{
+	border-left: 1px solid navy;
+  padding-left: 1em;
+}}
+</style>
 </head>
 <body>
-<h1><b>Вопрос</b>: {question}</h1>
+""")
+
+async def write_html(path, question, answer, context):
+    f = await aiofiles.open(path, 'a', encoding='utf-8')
+    await f.write(f"""<h1><b>Вопрос</b>: {question}</h1>
 <hr>
 <details>
     <summary>Ответ LLM: </summary>
@@ -56,14 +67,11 @@ async def write_html(path, question, answer, context):
 """)
     for i, con in enumerate(context):
         await f.write(f"""    <details>
-        <summary>Чанк {i}: </summary>
+        <summary>Чанк {i+1}: </summary>
         <p>{escape_html(con)}</p>>
     </details>
 """)
-    await f.write("""</details>
-</body>
-</html>
-""")
+    await f.write("</details>\n")
 
 
 def join_context(docs):
@@ -82,7 +90,9 @@ async def chat_handler(message: Message) -> None:
     id = message.chat.id
     if id not in history:
         history[id] = []
-    path_to_html = normpath(join(dirname(__file__), '..', 'output', 'a.html'))
+    path_to_html = join(path_to_log, f"{id}.html")
+    if not os.path.exists(path_to_html):
+        await write_start_html(path_to_html)
     this_history = history[id]
     if len(this_history) >= 20:
         this_history = this_history[2:]
