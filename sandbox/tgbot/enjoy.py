@@ -1,7 +1,8 @@
 import asyncio
 from os import getenv
 import aiofiles
-from os.path import normpath, join, dirname, exists
+from aiofiles.ospath import exists
+from os.path import normpath, join, dirname
 
 from html import escape
 
@@ -126,7 +127,7 @@ async def command_start_handler(message: Message) -> None:
 async def chat_handler(message: Message) -> None:
     id = message.chat.id
     path_to_html = join(path_to_log, f"{id}.html")
-    if not exists(path_to_html):
+    if not await exists(path_to_html):
         await write_start_html(path_to_html)
     async with lock:
         try:

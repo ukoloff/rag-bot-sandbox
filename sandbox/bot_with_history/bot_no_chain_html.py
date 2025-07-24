@@ -12,7 +12,7 @@ from gigachat.exceptions import ResponseError
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 
 import aiofiles
-from aiofiles.os import path
+from aiofiles.ospath import exists
 from aiogram.client.default import DefaultBotProperties
 from aiogram import Bot, Dispatcher
 from aiogram.types import Message
@@ -91,7 +91,7 @@ async def chat_handler(message: Message) -> None:
     if id not in history:
         history[id] = []
     path_to_html = join(path_to_log, f"{id}.html")
-    if not path.exists(path_to_html):
+    if not await exists(path_to_html):
         await write_start_html(path_to_html)
     this_history = history[id]
     if len(this_history) >= 20:
