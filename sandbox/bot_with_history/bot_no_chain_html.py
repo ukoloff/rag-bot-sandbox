@@ -1,10 +1,9 @@
 import asyncio
-import os.path
 
 from html import escape
 from os import getenv
 from dotenv import load_dotenv
-from os.path import normpath, join, dirname
+from os.path import normpath, join, dirname, exists
 
 from langchain_chroma import Chroma
 # from langchain_core.prompts import ChatPromptTemplate
@@ -91,7 +90,7 @@ async def chat_handler(message: Message) -> None:
     if id not in history:
         history[id] = []
     path_to_html = join(path_to_log, f"{id}.html")
-    if not os.path.exists(path_to_html):
+    if not exists(path_to_html):
         await write_start_html(path_to_html)
     this_history = history[id]
     if len(this_history) >= 20:
