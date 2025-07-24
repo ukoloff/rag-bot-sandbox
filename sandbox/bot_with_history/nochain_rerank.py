@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 from os.path import normpath, join, dirname
 
 from langchain_chroma import Chroma
-# from langchain_core.prompts import ChatPromptTemplate
 from langchain_gigachat import GigaChat, GigaChatEmbeddings
 from sentence_transformers import CrossEncoder
 from gigachat.exceptions import ResponseError
