@@ -1,7 +1,10 @@
 import asyncio
 from os import getenv
 import aiofiles
-from os.path import normpath, join, dirname
+from os.path import normpath, join, dirname, exists
+
+from html import escape
+
 from langchain_chroma import Chroma
 from langchain_core.runnables import RunnableLambda
 from langchain_gigachat import GigaChat, GigaChatEmbeddings
@@ -29,6 +32,7 @@ llm = GigaChat()
 
 path_to_db = normpath(join(dirname(__file__), "..", "..", "chroma.kb"))
 path_to_file = normpath(join(dirname(__file__), "prompt.txt"))
+path_to_log = normpath(join(dirname(__file__), '..', 'output'))
 db = Chroma(
     collection_name="kb.gigaRtext",
     embedding_function=GigaChatEmbeddings(model="Embeddings"),
@@ -37,9 +41,49 @@ db = Chroma(
 retriever = db.as_retriever(search_kwargs={"k": 5})
 user_histories = {}
 
+def escape_html(str):
+    return escape(str).replace("\n", "<br>")
 
-def join(docs):
+async def write_start_html(path):
+    f = await aiofiles.open(path, 'w', encoding='utf-8')
+    await f.write(f"""<html>
+<head>
+<meta charset="utf-8">
+<style>
+details > details {{
+	border-left: 1px solid navy;
+  padding-left: 1em;
+}}
+</style>
+</head>
+<body>
+""")
+
+async def write_html(path, question, answer, context):
+    f = await aiofiles.open(path, 'a', encoding='utf-8')
+    await f.write(f"""<h1><b>Вопрос</b>: {question}</h1>
+<hr>
+<details>
+    <summary>Ответ LLM: </summary>
+    <p>{escape_html(answer)}</p>
+</details>
+<details>
+    <summary>Чанки: </summary>
+""")
+    for i, con in enumerate(context):
+        await f.write(f"""    <details>
+        <summary>Чанк {i+1}: </summary>
+        <p>{escape_html(con)}</p>>
+    </details>
+""")
+    await f.write("</details>\n")
+
+context_list = []
+
+def join_context(docs):
     s = "\n\n".join(doc.page_content for doc in docs)
+    context_list.clear()
+    context_list.extend(doc.page_content for doc in docs)
     return s
 
 
@@ -63,7 +107,7 @@ async def prompt(data):
 
 chain = (
     {
-        "context": itemgetter("question") | retriever | join,
+        "context": itemgetter("question") | retriever | join_context,
         "question": itemgetter("question"),
         "chat_history": itemgetter("chat_history"),
     }
@@ -80,14 +124,20 @@ async def command_start_handler(message: Message) -> None:
 
 @dp.message()
 async def chat_handler(message: Message) -> None:
+    id = message.chat.id
+    path_to_html = join(path_to_log, f"{id}.html")
+    if not exists(path_to_html):
+        await write_start_html(path_to_html)
     async with lock:
         try:
+            question = message.text
             res = await chain_with_history.ainvoke(
-                {"question": message.text},
+                {"question": question},
                 config=RunnableConfig(
                     configurable={"session_id": message.from_user.id}
                 ),
             )
+            await write_html(path=path_to_html, question=question, answer=res, context=context_list)
             await message.answer(res)
         except ResponseError as e:
             await message.answer(f"Ошибка GigaChat: {e.args[1]}")
