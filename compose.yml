@@ -34,8 +34,8 @@ services:
       BOT_TOKEN: ${BOT_TOKEN}
 
 volumes:
-  repo:
-  chroma:
-  output:
-  venv:
-  uv-cache:
+  repo:       # Repository
+  chroma:     # Chroma DB
+  output:     # Logs & output files
+  venv:       # .venv
+  uv-cache:   # Cache of uv
