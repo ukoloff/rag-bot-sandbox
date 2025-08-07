@@ -14,6 +14,9 @@ services:
 
   tg:
     image: astral/uv:python3.13-bookworm-slim
+    depends_on:
+      repo:
+        condition: service_completed_successfully
     working_dir: /repo
     command: ["/bin/tail", "-f", "/dev/null"]
     stop_signal: SIGKILL
