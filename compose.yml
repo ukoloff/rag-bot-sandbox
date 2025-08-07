@@ -5,3 +5,14 @@ services:
     image: astral/uv:python3.13-bookworm-slim
     command: ["/bin/tail", "-f", "/dev/null"]
     stop_signal: SIGKILL
+    volumes:
+    - repo:/repo
+    - venv:/repo/.venv
+    - uv-cache:/root/.cache/uv
+    environment:
+      UV_LINK_MODE: copy
+
+volumes:
+  repo:
+  venv:
+  uv-cache:
