@@ -1,0 +1,7 @@
+name: kbbot
+
+services:
+  tg:
+    image: astral/uv:python3.13-bookworm-slim
+    command: ["/bin/tail", "-f", "/dev/null"]
+    stop_signal: SIGKILL
