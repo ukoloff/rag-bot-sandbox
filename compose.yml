@@ -1,0 +1,38 @@
+name: kbbot
+
+services:
+  repo:
+    build:
+      context: docker
+    environment:
+      GIT_REPO: https://github.com/ukoloff/rag-bot-sandbox.git
+    working_dir: /repo
+    entrypoint:
+    - start.sh
+    volumes:
+    - repo:/repo
+
+  tg:
+    image: astral/uv:python3.13-bookworm-slim
+    depends_on:
+      repo:
+        condition: service_completed_successfully
+    working_dir: /repo
+    command: ["uv", "run", "main.py"]
+    volumes:
+    - repo:/repo
+    - chroma:/repo/chroma.kb
+    - output:/repo/sandbox/output
+    - venv:/repo/.venv
+    - uv-cache:/root/.cache/uv
+    environment:
+      UV_LINK_MODE: copy
+      GIGACHAT_CREDENTIALS: ${GIGACHAT_CREDENTIALS}
+      BOT_TOKEN: ${BOT_TOKEN}
+
+volumes:
+  repo:
+  chroma:
+  output:
+  venv:
+  uv-cache:
