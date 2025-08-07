@@ -1,8 +1,20 @@
 name: kbbot
 
 services:
+  repo:
+    build:
+      context: docker
+    environment:
+      GIT_REPO: https://github.com/ukoloff/rag-bot-sandbox.git
+    working_dir: /repo
+    entrypoint:
+    - start.sh
+    volumes:
+    - repo:/repo
+
   tg:
     image: astral/uv:python3.13-bookworm-slim
+    working_dir: /repo
     command: ["/bin/tail", "-f", "/dev/null"]
     stop_signal: SIGKILL
     volumes:
