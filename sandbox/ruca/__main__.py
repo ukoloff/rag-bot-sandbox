@@ -1,3 +1,4 @@
+# https://github.com/WISEPLAT/gigachain/blob/master/libs/cli/langchain_cli/cli.py
 def install_rus_certs() -> None:
     """
     Установка корневого сертификата Минцифры.
