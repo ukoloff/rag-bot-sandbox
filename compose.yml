@@ -26,6 +26,8 @@ services:
     - uv-cache:/root/.cache/uv
     environment:
       UV_LINK_MODE: copy
+      GIGACHAT_CREDENTIALS: ${GIGACHAT_CREDENTIALS}
+      BOT_TOKEN: ${BOT_TOKEN}
 
 volumes:
   repo:
