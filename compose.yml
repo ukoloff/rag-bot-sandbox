@@ -4,6 +4,8 @@ services:
   repo:
     build:
       context: docker
+      labels:
+        maintainer: Stanislav.Ukolov@omzglobal.com
     environment:
       GIT_REPO: https://github.com/ukoloff/rag-bot-sandbox.git
     working_dir: /repo
