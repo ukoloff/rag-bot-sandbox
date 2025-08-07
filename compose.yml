@@ -22,6 +22,8 @@ services:
     stop_signal: SIGKILL
     volumes:
     - repo:/repo
+    - chroma:/repo/chroma.kb
+    - output:/repo/sandbox/output
     - venv:/repo/.venv
     - uv-cache:/root/.cache/uv
     environment:
@@ -31,5 +33,7 @@ services:
 
 volumes:
   repo:
+  chroma:
+  output:
   venv:
   uv-cache:
