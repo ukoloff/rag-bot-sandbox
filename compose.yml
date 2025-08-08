@@ -23,7 +23,7 @@ services:
     command: ["uv", "run", "main.py"]
     volumes:
     - repo:/repo
-    - chroma:/repo/chroma.kb
+    - chroma:/repo/chroma.kb:ro
     - output:/repo/sandbox/output
     - venv:/repo/.venv
     - uv-cache:/root/.cache/uv
