@@ -4,6 +4,8 @@ services:
   repo:
     build:
       context: docker
+      labels:
+        maintainer: Stanislav.Ukolov@omzglobal.com
     environment:
       GIT_REPO: https://github.com/ukoloff/rag-bot-sandbox.git
     working_dir: /repo
@@ -31,8 +33,8 @@ services:
       BOT_TOKEN: ${BOT_TOKEN}
 
 volumes:
-  repo:
-  chroma:
-  output:
-  venv:
-  uv-cache:
+  repo:       # Repository
+  chroma:     # Chroma DB
+  output:     # Logs & output files
+  venv:       # .venv
+  uv-cache:   # Cache of uv
